@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/redis"
@@ -32,14 +31,13 @@ func (this *AreaController) GetAreas() {
 	beego.Info("get /api/v1.0/areas...")
 
 	resp := AreaResp{Errno: models.RECODE_OK, Errmsg: models.RecodeText(models.RECODE_OK)}
-
 	defer this.RetData(&resp)
 
 	//1 从redis查询是否有有area数据的缓存  如有有直接返回
 	cache_conn, err := cache.NewCache("redis", `{"key":"iHome", "conn":"127.0.0.1:6379","dbNum":"0"}`)
 
 	if err != nil {
-		beego.Info("connect redis server error")
+		beego.Info("GetAreas error", err)
 		resp.Errno = models.RECODE_DATAERR
 		resp.Errmsg = models.RecodeText(resp.Errno)
 		return
@@ -79,7 +77,7 @@ func (this *AreaController) GetAreas() {
 		resp.Errmsg = models.RecodeText(resp.Errno)
 		return
 	}
-	fmt.Printf("areas = %+v\n", areas)
+	beego.Info("areas:", areas)
 	resp.Data = areas
 
 	//将areas存储到缓存数据库中
